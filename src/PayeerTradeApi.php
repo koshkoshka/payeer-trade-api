@@ -62,7 +62,14 @@ class PayeerTradeApi
         return $this->arError;
     }
 
-    public function info($pair = null)
+    /**
+     * Get limits and available pairs
+     * 
+     * @param string $pair 
+     * @return mixed 
+     * @throws Exception 
+     */
+    public function info(string $pair = null)
     {
         $request = [
             'method' => 'info',
@@ -77,7 +84,14 @@ class PayeerTradeApi
         return $res;
     }
 
-    public function ticker($pair = null)
+    /**
+     * Price statistics for latest 24 hours
+     * 
+     * @param string $pair 
+     * @return mixed 
+     * @throws Exception 
+     */
+    public function ticker(string $pair = null)
     {
         $request = [
             'method' => 'ticker',
@@ -89,11 +103,18 @@ class PayeerTradeApi
         }
         $res = $this->request($request);
 
-        return $res;
+        return $res['pairs'];
     }
 
 
-    public function orders($pair = 'BTC_USDT')
+    /**
+     * Get available orders for selected pair(s)
+     * 
+     * @param string $pair 
+     * @return mixed 
+     * @throws Exception 
+     */
+    public function orders(string $pair)
     {
         $res = $this->request([
             'method' => 'orders',
@@ -105,10 +126,17 @@ class PayeerTradeApi
         return $res['pairs'];
     }
 
-    public function trades($pair = 'BTC_USDT')
+    /**
+     * Get all trades for current pair
+     * 
+     * @param string $pair 
+     * @return mixed 
+     * @throws Exception 
+     */
+    public function trades(string $pair)
     {
         $res = $this->request([
-            'method' => 'orders',
+            'method' => 'trades',
             'post' => [
                 'pair' => $pair,
             ],
@@ -118,6 +146,12 @@ class PayeerTradeApi
     }
 
 
+    /**
+     * Get balance of wallets
+     * 
+     * @return mixed 
+     * @throws Exception 
+     */
     public function account()
     {
         $res = $this->request([
@@ -128,6 +162,13 @@ class PayeerTradeApi
     }
 
 
+    /**
+     * Order request
+     * 
+     * @param array $req 
+     * @return mixed 
+     * @throws Exception 
+     */
     private function orderCreate($req = [])
     {
         $res = $this->request([
@@ -139,27 +180,31 @@ class PayeerTradeApi
     }
 
 
-    public function orderStatus($req = [])
+    /**
+     * Get order status by id
+     * 
+     * @param int $id 
+     * @return mixed 
+     * @throws Exception 
+     */
+    public function orderStatus(int $id)
     {
         $res = $this->request([
             'method' => 'order_status',
-            'post' => $req,
+            'post' => [
+                'order_id' => $id
+            ],
         ]);
 
         return $res['order'];
     }
 
-
-    public function myOrders($req = [])
-    {
-        $res = $this->request([
-            'method' => 'my_orders',
-            'post' => $req,
-        ]);
-
-        return $res['items'];
-    }
-
+    /**
+     * Get current time in milliseconds timestamp
+     * 
+     * @return int 
+     * @throws Exception 
+     */
     public function time()
     {
         $res = $this->request([
@@ -169,6 +214,8 @@ class PayeerTradeApi
     }
 
     /**
+     * Make limit order
+     * 
      * @param string $pair 
      * @param string $action 
      * @param float $amount 
@@ -194,6 +241,143 @@ class PayeerTradeApi
             'amount' => $amount,
             'price' => $price,
         ]);
+    }
+
+    /**
+     * Make market order
+     * 
+     * @param string $pair 
+     * @param string $action 
+     * @param float $amount 
+     * @param float $value 
+     * @return array 
+     * @throws Exception 
+     */
+    public function marketOrder(string $pair, string $action, float $amount = 0, float $value = 0)
+    {
+        if (!in_array($action, ['sell', 'buy'])) {
+            throw new Exception('Action may be only sell or buy');
+        }
+        if ($amount <= 0 && $value <= 0) {
+            throw new Exception('Amount and value cannot be less or equal zero simultaneously');
+        }
+        if ($amount > 0 && $value > 0) {
+            throw new Exception('Please use only one of: Amount or Value. Another must be equal zero');
+        }
+        $req = [
+            'type' => 'market',
+            'pair' => $pair,
+            'action' => $action,
+        ];
+        if ($value > 0) {
+            $req['value'] = $value;
+        }
+        if ($amount > 0) {
+            $req['amount'] = $amount;
+        }
+        return $this->orderCreate($req);
+    }
+
+    /**
+     * Make stop limit order
+     * 
+     * @param string $pair 
+     * @param string $action 
+     * @param float $amount 
+     * @param float $price 
+     * @param float $stopPrice 
+     * @return array 
+     * @throws Exception 
+     */
+    public function stopLimitOrder(string $pair, string $action, float $amount, float $price, float $stopPrice)
+    {
+        if (!in_array($action, ['sell', 'buy'])) {
+            throw new Exception('Action may be only sell or buy');
+        }
+        if ($amount <= 0) {
+            throw new Exception('Amount cannot be less or equal zero');
+        }
+        if ($price <= 0) {
+            throw new Exception('Price cannot be less or equal zero');
+        }
+        if ($stopPrice <= 0) {
+            throw new Exception('Stop price cannot be less or equal zero');
+        }
+        return $this->orderCreate([
+            'type' => 'stop_limit',
+            'pair' => $pair,
+            'action' => $action,
+            'amount' => $amount,
+            'price' => $price,
+            'stop_price' => $stopPrice,
+        ]);
+    }
+
+    /**
+     * Cancel order by id
+     * 
+     * @param int $id 
+     * @return mixed 
+     * @throws Exception 
+     */
+    public function cancelOrder(int $id)
+    {
+        $res = $this->request([
+            'method' => 'order_cancel',
+            'post' => [
+                'order_id' => $id
+            ],
+        ]);
+
+        return $res['success'];
+    }
+
+    /**
+     * Cancel multiple orders
+     * 
+     * @param string $pair 
+     * @param string $action 
+     * @return mixed 
+     * @throws Exception 
+     */
+    public function cancelOrders(string $pair = null, string $action = null)
+    {
+        if (!empty($action) && !in_array($action, ['sell', 'buy'])) {
+            throw new Exception('Action may be only sell or buy');
+        }
+        $req = [];
+        if (!empty($pair)) $req['pair'] = $pair;
+        if (!empty($action)) $req['action'] = $action;
+        $res = $this->request([
+            'method' => 'orders_cancel',
+            'post' => $req,
+        ]);
+
+        return $res['items'];
+    }
+
+    /**
+     * Get my orders
+     * 
+     * @param string $pair 
+     * @param string $action 
+     * @return mixed 
+     * @throws Exception 
+     */
+    public function myOrders(string $pair = null, string $action = null)
+    {
+        if (!empty($action) && !in_array($action, ['sell', 'buy'])) {
+            throw new Exception('Action may be only sell or buy');
+        }
+        $req = [];
+        if (!empty($pair)) $req['pair'] = $pair;
+        if (!empty($action)) $req['action'] = $action;
+        $res = $this->request([
+            'method' => 'my_orders',
+            'post' => $req,
+        ]);
+
+        return $res['items'];
     }
 
 }
