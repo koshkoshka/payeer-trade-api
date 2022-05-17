@@ -65,7 +65,7 @@ class PayeerTradeApi
     /**
      * Get limits and available pairs
      * 
-     * @param string $pair 
+     * @param  string $pair 
      * @return mixed 
      * @throws Exception 
      */
@@ -87,7 +87,7 @@ class PayeerTradeApi
     /**
      * Price statistics for latest 24 hours
      * 
-     * @param string $pair 
+     * @param  string $pair 
      * @return mixed 
      * @throws Exception 
      */
@@ -110,18 +110,20 @@ class PayeerTradeApi
     /**
      * Get available orders for selected pair(s)
      * 
-     * @param string $pair 
+     * @param  string $pair 
      * @return mixed 
      * @throws Exception 
      */
     public function orders(string $pair)
     {
-        $res = $this->request([
+        $res = $this->request(
+            [
             'method' => 'orders',
             'post' => [
                 'pair' => $pair,
             ],
-        ]);
+            ]
+        );
 
         return $res['pairs'];
     }
@@ -129,18 +131,20 @@ class PayeerTradeApi
     /**
      * Get all trades for current pair
      * 
-     * @param string $pair 
+     * @param  string $pair 
      * @return mixed 
      * @throws Exception 
      */
     public function trades(string $pair)
     {
-        $res = $this->request([
+        $res = $this->request(
+            [
             'method' => 'trades',
             'post' => [
                 'pair' => $pair,
             ],
-        ]);
+            ]
+        );
 
         return $res['pairs'];
     }
@@ -154,9 +158,11 @@ class PayeerTradeApi
      */
     public function account()
     {
-        $res = $this->request([
+        $res = $this->request(
+            [
             'method' => 'account',
-        ]);
+            ]
+        );
 
         return $res['balances'];
     }
@@ -165,16 +171,18 @@ class PayeerTradeApi
     /**
      * Order request
      * 
-     * @param array $req 
+     * @param  array $req 
      * @return mixed 
      * @throws Exception 
      */
     private function orderCreate($req = [])
     {
-        $res = $this->request([
+        $res = $this->request(
+            [
             'method' => 'order_create',
             'post' => $req,
-        ]);
+            ]
+        );
 
         return $res;
     }
@@ -183,18 +191,20 @@ class PayeerTradeApi
     /**
      * Get order status by id
      * 
-     * @param int $id 
+     * @param  int $id 
      * @return mixed 
      * @throws Exception 
      */
     public function orderStatus(int $id)
     {
-        $res = $this->request([
+        $res = $this->request(
+            [
             'method' => 'order_status',
             'post' => [
                 'order_id' => $id
             ],
-        ]);
+            ]
+        );
 
         return $res['order'];
     }
@@ -207,19 +217,21 @@ class PayeerTradeApi
      */
     public function time()
     {
-        $res = $this->request([
+        $res = $this->request(
+            [
             'method' => 'time',
-        ]);
+            ]
+        );
         return $res['time'];
     }
 
     /**
      * Make limit order
      * 
-     * @param string $pair 
-     * @param string $action 
-     * @param float $amount 
-     * @param float $price 
+     * @param  string $pair 
+     * @param  string $action 
+     * @param  float  $amount 
+     * @param  float  $price 
      * @return array 
      * @throws Exception 
      */
@@ -234,22 +246,24 @@ class PayeerTradeApi
         if ($price <= 0) {
             throw new Exception('Price cannot be less or equal zero');
         }
-        return $this->orderCreate([
+        return $this->orderCreate(
+            [
             'type' => 'limit',
             'pair' => $pair,
             'action' => $action,
             'amount' => $amount,
             'price' => $price,
-        ]);
+            ]
+        );
     }
 
     /**
      * Make market order
      * 
-     * @param string $pair 
-     * @param string $action 
-     * @param float $amount 
-     * @param float $value 
+     * @param  string $pair 
+     * @param  string $action 
+     * @param  float  $amount 
+     * @param  float  $value 
      * @return array 
      * @throws Exception 
      */
@@ -281,11 +295,11 @@ class PayeerTradeApi
     /**
      * Make stop limit order
      * 
-     * @param string $pair 
-     * @param string $action 
-     * @param float $amount 
-     * @param float $price 
-     * @param float $stopPrice 
+     * @param  string $pair 
+     * @param  string $action 
+     * @param  float  $amount 
+     * @param  float  $price 
+     * @param  float  $stopPrice 
      * @return array 
      * @throws Exception 
      */
@@ -303,31 +317,35 @@ class PayeerTradeApi
         if ($stopPrice <= 0) {
             throw new Exception('Stop price cannot be less or equal zero');
         }
-        return $this->orderCreate([
+        return $this->orderCreate(
+            [
             'type' => 'stop_limit',
             'pair' => $pair,
             'action' => $action,
             'amount' => $amount,
             'price' => $price,
             'stop_price' => $stopPrice,
-        ]);
+            ]
+        );
     }
 
     /**
      * Cancel order by id
      * 
-     * @param int $id 
+     * @param  int $id 
      * @return mixed 
      * @throws Exception 
      */
     public function cancelOrder(int $id)
     {
-        $res = $this->request([
+        $res = $this->request(
+            [
             'method' => 'order_cancel',
             'post' => [
                 'order_id' => $id
             ],
-        ]);
+            ]
+        );
 
         return $res['success'];
     }
@@ -335,8 +353,8 @@ class PayeerTradeApi
     /**
      * Cancel multiple orders
      * 
-     * @param string $pair 
-     * @param string $action 
+     * @param  string $pair 
+     * @param  string $action 
      * @return mixed 
      * @throws Exception 
      */
@@ -346,12 +364,16 @@ class PayeerTradeApi
             throw new Exception('Action may be only sell or buy');
         }
         $req = [];
-        if (!empty($pair)) $req['pair'] = $pair;
-        if (!empty($action)) $req['action'] = $action;
-        $res = $this->request([
+        if (!empty($pair)) { $req['pair'] = $pair;
+        }
+        if (!empty($action)) { $req['action'] = $action;
+        }
+        $res = $this->request(
+            [
             'method' => 'orders_cancel',
             'post' => $req,
-        ]);
+            ]
+        );
 
         return $res['items'];
     }
@@ -359,8 +381,8 @@ class PayeerTradeApi
     /**
      * Get my orders
      * 
-     * @param string $pair 
-     * @param string $action 
+     * @param  string $pair 
+     * @param  string $action 
      * @return mixed 
      * @throws Exception 
      */
@@ -370,12 +392,16 @@ class PayeerTradeApi
             throw new Exception('Action may be only sell or buy');
         }
         $req = [];
-        if (!empty($pair)) $req['pair'] = $pair;
-        if (!empty($action)) $req['action'] = $action;
-        $res = $this->request([
+        if (!empty($pair)) { $req['pair'] = $pair;
+        }
+        if (!empty($action)) { $req['action'] = $action;
+        }
+        $res = $this->request(
+            [
             'method' => 'my_orders',
             'post' => $req,
-        ]);
+            ]
+        );
 
         return $res['items'];
     }
@@ -383,12 +409,12 @@ class PayeerTradeApi
     /**
      * Get my trades
      * 
-     * @param string $pair 
-     * @param string $action 
-     * @param int $dateFrom Unix Timestamp of begin date
-     * @param int $dateTo Unix Timestamp of end date
-     * @param int $lastId 
-     * @param int $limit 
+     * @param  string $pair 
+     * @param  string $action 
+     * @param  int    $dateFrom Unix Timestamp of begin date
+     * @param  int    $dateTo   Unix Timestamp of end date
+     * @param  int    $lastId 
+     * @param  int    $limit 
      * @return mixed 
      * @throws Exception 
      */
@@ -401,16 +427,24 @@ class PayeerTradeApi
             throw new Exception('Limit cannot be less or equal zero');
         }
         $req = [];
-        if (!empty($pair)) $req['pair'] = $pair;
-        if (!empty($action)) $req['action'] = $action;
-        if (!empty($dateFrom)) $req['date_from'] = $dateFrom;
-        if (!empty($dateTo)) $req['date_to'] = $dateTo;
-        if (!empty($lastId)) $req['append'] = $lastId;
-        if (!empty($limit)) $req['limit'] = $limit;
-        $res = $this->request([
+        if (!empty($pair)) { $req['pair'] = $pair;
+        }
+        if (!empty($action)) { $req['action'] = $action;
+        }
+        if (!empty($dateFrom)) { $req['date_from'] = $dateFrom;
+        }
+        if (!empty($dateTo)) { $req['date_to'] = $dateTo;
+        }
+        if (!empty($lastId)) { $req['append'] = $lastId;
+        }
+        if (!empty($limit)) { $req['limit'] = $limit;
+        }
+        $res = $this->request(
+            [
             'method' => 'my_trades',
             'post' => $req,
-        ]);
+            ]
+        );
 
         return $res['items'];
     }
@@ -418,13 +452,13 @@ class PayeerTradeApi
     /**
      * Get my trades
      * 
-     * @param string $pair 
-     * @param string $action 
-     * @param string $status 
-     * @param int $dateFrom Unix Timestamp of begin date
-     * @param int $dateTo Unix Timestamp of end date
-     * @param int $lastId 
-     * @param int $limit 
+     * @param  string $pair 
+     * @param  string $action 
+     * @param  string $status 
+     * @param  int    $dateFrom Unix Timestamp of begin date
+     * @param  int    $dateTo   Unix Timestamp of end date
+     * @param  int    $lastId 
+     * @param  int    $limit 
      * @return mixed 
      * @throws Exception 
      */
@@ -440,16 +474,24 @@ class PayeerTradeApi
             throw new Exception('Limit cannot be less or equal zero');
         }
         $req = [];
-        if (!empty($pair)) $req['pair'] = $pair;
-        if (!empty($action)) $req['action'] = $action;
-        if (!empty($dateFrom)) $req['date_from'] = $dateFrom;
-        if (!empty($dateTo)) $req['date_to'] = $dateTo;
-        if (!empty($lastId)) $req['append'] = $lastId;
-        if (!empty($limit)) $req['limit'] = $limit;
-        $res = $this->request([
+        if (!empty($pair)) { $req['pair'] = $pair;
+        }
+        if (!empty($action)) { $req['action'] = $action;
+        }
+        if (!empty($dateFrom)) { $req['date_from'] = $dateFrom;
+        }
+        if (!empty($dateTo)) { $req['date_to'] = $dateTo;
+        }
+        if (!empty($lastId)) { $req['append'] = $lastId;
+        }
+        if (!empty($limit)) { $req['limit'] = $limit;
+        }
+        $res = $this->request(
+            [
             'method' => 'my_history',
             'post' => $req,
-        ]);
+            ]
+        );
 
         return $res['items'];
     }
