@@ -1,0 +1,18 @@
+{
+    "name": "koshkoshka/payeer-trade-api",
+    "description": "Payeer Trade API test",
+    "type": "library",
+    "license": "GPL",
+    "autoload": {
+        "psr-4": {
+            "Payeer\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "koshkoshka",
+            "email": "andreykosh000@mail.ru"
+        }
+    ],
+    "require": {}
+}
