@@ -380,4 +380,78 @@ class PayeerTradeApi
         return $res['items'];
     }
 
+    /**
+     * Get my trades
+     * 
+     * @param string $pair 
+     * @param string $action 
+     * @param int $dateFrom Unix Timestamp of begin date
+     * @param int $dateTo Unix Timestamp of end date
+     * @param int $lastId 
+     * @param int $limit 
+     * @return mixed 
+     * @throws Exception 
+     */
+    public function myTrades(string $pair = null, string $action = null, int $dateFrom = null, int $dateTo = null, int $lastId = null, int $limit = 50)
+    {
+        if (!empty($action) && !in_array($action, ['sell', 'buy'])) {
+            throw new Exception('Action may be only sell or buy');
+        }
+        if ($limit <= 0) {
+            throw new Exception('Limit cannot be less or equal zero');
+        }
+        $req = [];
+        if (!empty($pair)) $req['pair'] = $pair;
+        if (!empty($action)) $req['action'] = $action;
+        if (!empty($dateFrom)) $req['date_from'] = $dateFrom;
+        if (!empty($dateTo)) $req['date_to'] = $dateTo;
+        if (!empty($lastId)) $req['append'] = $lastId;
+        if (!empty($limit)) $req['limit'] = $limit;
+        $res = $this->request([
+            'method' => 'my_trades',
+            'post' => $req,
+        ]);
+
+        return $res['items'];
+    }
+
+    /**
+     * Get my trades
+     * 
+     * @param string $pair 
+     * @param string $action 
+     * @param string $status 
+     * @param int $dateFrom Unix Timestamp of begin date
+     * @param int $dateTo Unix Timestamp of end date
+     * @param int $lastId 
+     * @param int $limit 
+     * @return mixed 
+     * @throws Exception 
+     */
+    public function myHistory(string $pair = null, string $action = null, string $status = null, int $dateFrom = null, int $dateTo = null, int $lastId = null, int $limit = 50)
+    {
+        if (!empty($action) && !in_array($action, ['sell', 'buy'])) {
+            throw new Exception('Action may be only sell or buy');
+        }
+        if (!empty($status) && !in_array($action, ['success', 'processing', 'waiting', 'canceled'])) {
+            throw new Exception('Status may be only one of: success, processing, waiting, canceled');
+        }
+        if ($limit <= 0) {
+            throw new Exception('Limit cannot be less or equal zero');
+        }
+        $req = [];
+        if (!empty($pair)) $req['pair'] = $pair;
+        if (!empty($action)) $req['action'] = $action;
+        if (!empty($dateFrom)) $req['date_from'] = $dateFrom;
+        if (!empty($dateTo)) $req['date_to'] = $dateTo;
+        if (!empty($lastId)) $req['append'] = $lastId;
+        if (!empty($limit)) $req['limit'] = $limit;
+        $res = $this->request([
+            'method' => 'my_history',
+            'post' => $req,
+        ]);
+
+        return $res['items'];
+    }
+
 }
