@@ -14,5 +14,9 @@
             "email": "andreykosh000@mail.ru"
         }
     ],
-    "require": {}
+    "require": {
+        "php": ">=7.4.0",
+        "ext-curl": "*",
+        "ext-json": "*"
+    }
 }
